@@ -75,7 +75,12 @@ int resample(const SDL_Surface *image, uint w, uint h, sizer crop, rgb_t pix[w][
 	}
 	else
 	{
-		memset(pix, 0, sizeof(pix));
+		/* FIXME: This causes "error: argument to 'sizeof' in 'memset'
+		 * call is the same expression as the destination; did you mean
+		 * to dereference it?"
+
+		memset(pix, 0, sizeof(**pix));
+		*/
 		// Gaussian resample of the data
 		double scaler_w=image->w/(double)w, scaler_h=image->h/(double)h;
 		double offset_x=0, offset_y=0;
