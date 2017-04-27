@@ -1,0 +1,32 @@
+Setup: we create an array, palyuv[(ulaplus?256:16)], of the (ulaplus?256 gggrrrbb ULA+:16 Spectrum) colours' YUV values.
+[if !ULAPLUS, attribute byte is fvrgbRGB, where: f=flash, v=bright, rgb=paper, RGB=ink]
+
+We start with an array of pixels, dat[x][y], each contains r,g,b components.
+First, we resample to 256x192, to get pix[x][y].
+Then we convert to sorta-yuv, to get yuv[x][y].
+
+IF ULAPLUS
+{
+	For each 8x8 block, we count the distribution of Y values.
+		For y in [min Y, max Y), split the distribution into Y<=y and y>Y, and calculate the variance of each.
+		Choose the y which minimises the sum of these variances.
+	For that y, calculate for each "half" of the distribution, means of U and V, and use those as the 'optimal' ink and paper colours for this block.
+
+	So we now have (timex?6144:768) pairs of (Y,U,V) triples; for now, we'll treat that as just (timex?12288:1536) triples, the array opt[32][(timex?192:24)][2][4] (the 0,1,2 entries are y,u,v; 3 is weighting).
+	The next step is to find the nearest palyuv to each opt, giving us an array palopt[32][(timex?192:24)][2][2] (the 0 entry is palyuv offset, the 1 entry is weighting)
+
+	We need to choose from this a palette of at most 64.
+	So we count the distribution of palopts in palyuv space.
+	Then we pick our most 'wanted' triple (or, if many are equally wanted, pick any one of them), add that to our palette, and gaussianly shrink the 'wantedness' of nearby palopts. ('Nearby' is judged on Pythagorean yuv-distance)
+	Repeat the above step until the palette is full.
+	Now go back to each block in turn, and find the nearest (of the palette of 64) to its optimal ink colour; then the nearest of the 8 valid colours to its optimal paper colour.  (If the chosen ink colour is a PAPER, we just conceptually INVERSE everything later).  These colours are to be used for this block.
+}
+ELSE
+{
+	For each 8x8 block, try filling it (no dither) with each INK/PAPER combination, computing a distance in each case.  Choose the closest pair for use on this block.
+}
+
+Now we have a palette of 2 with which to Floyd-Steinberg dither this block.
+And we're done!
+
+A few magic constants change if we're in Timex 8x1 attribute mode, but the basic algorithm is the same.
