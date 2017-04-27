@@ -206,6 +206,8 @@ int pickattrs(uint w, uint h, uchar render, yuv_t yuv[w][h], uchar pal[w/8][h][2
 				pal[x][y][0]=7;
 			else
 			{
+				int is_same_color = 1;
+
 				uchar ma;
 				double mad;
 				for(uchar a=1;a<128;a++) // 1, not 0, because a=0 => i==p => continue
@@ -216,6 +218,8 @@ int pickattrs(uint w, uint h, uchar render, yuv_t yuv[w][h], uchar pal[w/8][h][2
 						continue;
 					int b=a>>6;
 					double d=0;
+
+					const uchar *cyuv = yuv[x*8][y*8];
 					for(uint dx=0;dx<8;dx++)
 					{
 						for(uint dy=0;dy<(IS_RENDER_TIMEX(render)?1:8);dy++)
@@ -224,6 +228,10 @@ int pickattrs(uint w, uint h, uchar render, yuv_t yuv[w][h], uchar pal[w/8][h][2
 							double di=yuvdist(palyuv[i+(b<<3)], xyuv);
 							double dp=yuvdist(palyuv[p+(b<<3)], xyuv);
 							d+=min(di, dp);
+
+							if((cyuv[0] != xyuv[0]) || (cyuv[1] != xyuv[1])) {
+								is_same_color = 0;
+							}
 						}
 					}
 					if((a==1)||(d<mad))
@@ -232,6 +240,11 @@ int pickattrs(uint w, uint h, uchar render, yuv_t yuv[w][h], uchar pal[w/8][h][2
 						ma=a;
 					}
 				}
+
+				if(is_same_color) {
+					ma = (ma & 0xc0) + ((ma & 0x07) << 3) + ((ma & 0x38) >> 3);
+				}
+
 				pal[x][y][0]=ma;
 			}
 		}
