@@ -1,3 +1,17 @@
+This is a slightly modified version of SCRplus by Edward Cree. Code here is
+based on SCRplus 0.21, which was downloaded from:
+
+https://sourceforge.net/projects/scrplus/
+
+I made some changes to make it compile on Debian Jessie and changed the
+attribute assignment code to make somewhat nicer loading screens.
+
+-- Tomaz Solc
+
+
+Original content of the README file follows:
+
+
 Dependencies: SDL, SDL_image.
 Optional (required for GUI): gtk+-2.0.
 Optional (Image types): libpng, zlib, jpeg, libtiff.
