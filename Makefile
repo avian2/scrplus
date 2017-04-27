@@ -10,6 +10,10 @@ INCLUDES := colourspace.h bits.h libscrplus.h
 
 all: scrplus gscrplus libscrplus.o
 
+clean:
+	rm -f *.o
+	rm -f scrplus gscrplus
+
 scrplus: scrplus.c $(LIBS) $(INCLUDES)
 	$(CC) $(CFLAGS) $(SDLFLAGS) -o scrplus scrplus.c -lm $(LIBS) $(SDL)
 
@@ -56,3 +60,4 @@ distw: all
 	-rm scrplus_w$(VERSION)/gscrplus
 	make -C scrplus_w$(VERSION) -fMakefile all
 
+.PHONY: clean
